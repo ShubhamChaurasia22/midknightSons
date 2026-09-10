@@ -2,64 +2,58 @@
  * @shield/transformation
  * Transformation engine contracts and interfaces for Shield.
  *
- * NOTE: Phase 0 contains interface contracts only.
- * Transformation, masking, and redaction logic is implemented in M1+.
+ * NOTE: M1.1 contains domain contracts only.
+ * Transformation, masking, and redaction logic is implemented in M1.4+.
  */
 
-import type { DetectionEntity } from '@shield/core';
+import type {
+  AppliedTransformation,
+  DetectionEntity,
+  TransformationPlan,
+  TransformationResult,
+  TransformationStrategy,
+  TransformationType,
+} from '@shield/core';
 
-export type TransformationType = 'mask' | 'redact' | 'replace' | 'temporary_map';
-
-export interface TransformationMapping {
-  id: string;
-  originalValue: string;
-  placeholder: string;
-  category: string;
-  createdAt: number;
-  expiresAt?: number;
-}
-
-export interface TransformationStep {
-  entityId: string;
-  type: TransformationType;
-  replacement: string;
-}
-
-export interface TransformationPlan {
-  steps: TransformationStep[];
-  totalModifications: number;
-}
-
-export interface TransformationResult {
-  originalText: string;
-  transformedText: string;
-  isModified: boolean;
-  mappings: TransformationMapping[];
-}
+export type {
+  AppliedTransformation,
+  TransformationPlan,
+  TransformationResult,
+  TransformationStrategy,
+  TransformationType,
+};
 
 export interface Transformer {
   readonly id: string;
   readonly name: string;
-  readonly supportedTypes: TransformationType[];
+  readonly supportedTypes: readonly TransformationType[];
 
   /**
    * Plan transformations based on detected entities.
    */
-  plan(text: string, entities: DetectionEntity[]): TransformationPlan;
+  plan(text: string, entities: readonly DetectionEntity[]): TransformationPlan;
 
   /**
-   * Apply transformations to the text.
+   * Apply planned transformations to the text.
    */
   transform(
     text: string,
-    entities: DetectionEntity[],
-    type: TransformationType,
+    entities: readonly DetectionEntity[],
+    strategy: TransformationStrategy,
   ): Promise<TransformationResult>;
+}
+
+export interface ReversibleMapping {
+  readonly id: string;
+  readonly placeholder: string;
+  readonly category: string;
+  readonly createdAt: number;
+  readonly expiresAt?: number;
 }
 
 export interface ReverseTransformer {
   /**
-   * Resolve temporary mappings back to original values if authorized.
+   * Resolve temporary token mappings back to original values if authorized.
    */
-  reverse(text: string, mappings: TransformationMapping[]): Promise<string>;
+  reverse(text: string, mappings: readonly ReversibleMapping[]): Promise<string>;
 }
