@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/core" },
+    { "path": "./packages/detection" },
+    { "path": "./packages/policy" },
+    { "path": "./packages/transformation" },
+    { "path": "./packages/adapters" },
+    { "path": "./packages/ui" },
+    { "path": "./apps/extension" },
+    { "path": "./apps/website" },
+    { "path": "./apps/api" }
+  ],
+  "files": []
+}

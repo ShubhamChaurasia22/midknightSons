@@ -1,0 +1,28 @@
+{
+  "name": "@shield/adapters",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Platform adapter interfaces and registry for Shield",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@shield/core": "workspace:*",
+    "@shield/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

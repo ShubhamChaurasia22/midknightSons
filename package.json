@@ -1,0 +1,35 @@
+{
+  "name": "shield-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shield — Privacy and security browser extension for AI interactions",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.34.3",
+  "scripts": {
+    "dev": "pnpm --filter @shield/extension dev",
+    "dev:website": "pnpm --filter @shield/website dev",
+    "dev:api": "pnpm --filter @shield/api dev",
+    "build": "pnpm -r --filter \"./packages/*\" run build && pnpm -r --filter \"./apps/*\" run build",
+    "build:extension": "pnpm -r --filter \"./packages/*\" run build && pnpm --filter @shield/extension build",
+    "build:website": "pnpm -r --filter \"./packages/*\" run build && pnpm --filter @shield/website build",
+    "build:api": "pnpm -r --filter \"./packages/*\" run build && pnpm --filter @shield/api build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "typecheck": "tsc -b",
+    "format": "prettier --check \"**/*.{ts,tsx,js,json,md,css,html}\"",
+    "format:write": "prettier --write \"**/*.{ts,tsx,js,json,md,css,html}\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "@types/node": "^22.8.7",
+    "eslint": "^9.14.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.13.0",
+    "vitest": "^2.1.4"
+  }
+}

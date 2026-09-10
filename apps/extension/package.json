@@ -1,0 +1,28 @@
+{
+  "name": "@shield/extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shield Chrome Extension (Manifest V3)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node build-scripts.mjs",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@shield/adapters": "workspace:*",
+    "@shield/core": "workspace:*",
+    "@shield/shared": "workspace:*",
+    "@shield/ui": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.280",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}
