@@ -505,6 +505,67 @@ export class DefaultRiskEvaluator implements RiskEvaluator {
   }
 }
 
+export class DefaultPolicyEvaluator implements PolicyEvaluator {
+  evaluate(
+    risk: RiskAssessment,
+    detections: DetectionResult,
+    _classification?: ClassificationResult,
+    _context?: PipelineContext,
+  ): PolicyDecision {
+    if (
+      !detections ||
+      !detections.hasDetections ||
+      detections.entities.length === 0 ||
+      risk.severity === 'NONE'
+    ) {
+      return {
+        action: 'ALLOW',
+        reason: 'Clean input allowed: no sensitive entities detected',
+        triggeredRules: [],
+        allowOverride: false,
+      };
+    }
+
+    switch (risk.severity) {
+      case 'CRITICAL':
+        return {
+          action: 'BLOCK',
+          reason: `Critical risk detected (score ${risk.score}/100): transmission blocked by default policy`,
+          matchedRuleId: 'default-block-critical',
+          triggeredRules: ['default-block-critical'],
+          allowOverride: false,
+        };
+      case 'HIGH':
+        return {
+          action: 'MASK',
+          reason: `High risk detected (score ${risk.score}/100): masking sensitive entities per default policy`,
+          matchedRuleId: 'default-mask-high',
+          triggeredRules: ['default-mask-high'],
+          allowOverride: false,
+        };
+      case 'MEDIUM':
+        return {
+          action: 'WARN',
+          reason: `Medium risk detected (score ${risk.score}/100): prompt contains sensitive data`,
+          matchedRuleId: 'default-warn-medium',
+          triggeredRules: ['default-warn-medium'],
+          allowOverride: true,
+          userNotice:
+            'This prompt contains potentially sensitive information. Please review before proceeding.',
+        };
+      case 'LOW':
+      default:
+        return {
+          action: 'ALLOW',
+          reason: `Low risk detected (score ${risk.score}/100): allowed under default policy`,
+          matchedRuleId: 'default-allow-low',
+          triggeredRules: ['default-allow-low'],
+          allowOverride: false,
+        };
+    }
+  }
+}
+
 export class DefaultTransformer implements Transformer {
   transform(
     normalized: NormalizedInput,

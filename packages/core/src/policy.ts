@@ -22,6 +22,17 @@ export const POLICY_SCOPE_PRECEDENCE: Record<PolicyScope, number> = {
   GLOBAL: 1,
 } as const;
 
+/**
+ * Action severity ranking for deterministic conflict resolution:
+ * BLOCK (4) > MASK (3) > WARN (2) > ALLOW (1)
+ */
+export const POLICY_ACTION_RANK: Record<PolicyAction, number> = {
+  BLOCK: 4,
+  MASK: 3,
+  WARN: 2,
+  ALLOW: 1,
+} as const;
+
 export interface PolicyRule {
   id: string;
   name: string;
