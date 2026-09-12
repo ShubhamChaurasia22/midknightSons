@@ -38,7 +38,7 @@ export interface PlatformAdapter {
   /**
    * Attach hooks/listeners to the platform UI.
    */
-  attach(): Promise<boolean>;
+  attach(root?: unknown): Promise<boolean>;
 
   /**
    * Detach all listeners and clean up.
@@ -96,3 +96,4 @@ export * from './in-memory';
 export * from './boundary';
 export * from './standard-dom';
 export * from './browser-runtime';
+export * from './platform';
