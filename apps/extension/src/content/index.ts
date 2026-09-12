@@ -6,12 +6,26 @@
  */
 
 import { EXTENSION_NAME, createMessage, type ShieldMessage } from '@shield/shared';
-import { InMemoryAdapterRegistry, createBrowserAdapterRuntime } from '@shield/adapters';
+import {
+  InMemoryAdapterRegistry,
+  createBrowserAdapterRuntime,
+  detectPlatform,
+  ChatGPTAdapter,
+  ClaudeAdapter,
+  GeminiAdapter,
+} from '@shield/adapters';
 
 console.log(`[${EXTENSION_NAME}] Content script loaded on ${window.location.hostname}`);
 
-// Setup adapter registry placeholder
+// Setup adapter registry and register supported AI platform adapters (M2.3)
 const adapterRegistry = new InMemoryAdapterRegistry();
+const chatGptAdapter = new ChatGPTAdapter();
+const claudeAdapter = new ClaudeAdapter();
+const geminiAdapter = new GeminiAdapter();
+
+adapterRegistry.register(chatGptAdapter);
+adapterRegistry.register(claudeAdapter);
+adapterRegistry.register(geminiAdapter);
 
 // Initialize Browser Adapter Runtime (M2.2)
 const browserRuntime = createBrowserAdapterRuntime({
@@ -28,9 +42,25 @@ const browserRuntime = createBrowserAdapterRuntime({
   },
 });
 
-if (typeof document !== 'undefined') {
-  browserRuntime.attach(document);
-  console.log(`[${EXTENSION_NAME}] Browser adapter runtime attached.`);
+// Check if any registered platform adapter matches the current page
+const platformId = detectPlatform(window.location.href);
+const matchedAdapter = adapterRegistry.findAdapterForUrl(window.location.href);
+
+if (matchedAdapter) {
+  console.log(`[${EXTENSION_NAME}] Found adapter for current page: ${matchedAdapter.displayName}`);
+  if (typeof document !== 'undefined') {
+    void matchedAdapter.attach(document);
+    console.log(`[${EXTENSION_NAME}] Attached ${matchedAdapter.displayName} platform adapter.`);
+  }
+} else {
+  // Generic DOM adapter active or unsupported platform fails closed
+  console.log(
+    `[${EXTENSION_NAME}] No specific platform adapter for ${platformId}; attaching standard DOM runtime.`,
+  );
+  if (typeof document !== 'undefined') {
+    browserRuntime.attach(document);
+    console.log(`[${EXTENSION_NAME}] Standard DOM adapter runtime attached.`);
+  }
 }
 
 // Test internal extension communication with service worker
@@ -59,15 +89,6 @@ async function verifyExtensionCommunication(): Promise<void> {
   } catch (err) {
     console.warn(`[${EXTENSION_NAME}] Content script runtime message error:`, err);
   }
-}
-
-// Check if any registered adapter matches the current page (none registered in Phase 0)
-const matchedAdapter = adapterRegistry.findAdapterForUrl(window.location.href);
-if (matchedAdapter) {
-  console.log(`[${EXTENSION_NAME}] Found adapter for current page: ${matchedAdapter.displayName}`);
-} else {
-  // Expected in Phase 0: Generic adapter active via standard DOM detection
-  console.log(`[${EXTENSION_NAME}] Standard DOM adapter active.`);
 }
 
 // Run verification ping
