@@ -94,3 +94,5 @@ export class InMemoryAdapterRegistry implements PlatformAdapterRegistry {
 export * from './contracts';
 export * from './in-memory';
 export * from './boundary';
+export * from './standard-dom';
+export * from './browser-runtime';
