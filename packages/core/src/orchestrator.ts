@@ -22,9 +22,13 @@ import type {
   ClassificationResult,
   ClassificationEntity,
   SensitivityLevel,
-  Severity,
 } from './detection';
-import type { RiskAssessment, RiskFactor } from './risk';
+import {
+  type RiskAssessment,
+  type RiskEvaluatorConfig,
+  DeterministicRiskEvaluator,
+  createRiskEvaluator,
+} from './risk';
 import type { PolicyDecision } from './policy';
 import type { TransformationResult, AppliedTransformation } from './transformation';
 import type { VerificationResult } from './verification';
@@ -486,63 +490,18 @@ export class DefaultClassifier implements Classifier {
 }
 
 export class DefaultRiskEvaluator implements RiskEvaluator {
-  evaluate(detections: DetectionResult): RiskAssessment {
-    const now = Date.now();
-    if (!detections.hasDetections || detections.entities.length === 0) {
-      return {
-        score: 0,
-        severity: 'NONE',
-        confidence: 1.0,
-        factors: [],
-        summary: 'Clean input: no sensitive entities detected',
-        evaluationTimestamp: now,
-      };
-    }
+  private readonly engine: DeterministicRiskEvaluator;
 
-    const severityWeights: Record<Severity, number> = {
-      CRITICAL: 50,
-      HIGH: 30,
-      MEDIUM: 15,
-      LOW: 5,
-    };
+  constructor(config?: RiskEvaluatorConfig) {
+    this.engine = createRiskEvaluator(config);
+  }
 
-    const severityRank: Record<Severity, number> = {
-      CRITICAL: 4,
-      HIGH: 3,
-      MEDIUM: 2,
-      LOW: 1,
-    };
-
-    let totalScore = 0;
-    let maxConfidence = 0;
-    let highestSeverity: Severity = 'LOW';
-
-    const factors: RiskFactor[] = detections.entities.map((entity) => {
-      const weight = severityWeights[entity.severity] ?? 10;
-      totalScore += weight;
-      if (entity.confidence > maxConfidence) {
-        maxConfidence = entity.confidence;
-      }
-      if (severityRank[entity.severity] > severityRank[highestSeverity]) {
-        highestSeverity = entity.severity;
-      }
-      return {
-        detectorId: entity.detectorId,
-        category: entity.category,
-        severity: entity.severity,
-        weight,
-        reason: `Detected ${entity.category} with ${entity.severity} severity`,
-      };
-    });
-
-    return {
-      score: Math.min(100, totalScore),
-      severity: highestSeverity,
-      confidence: maxConfidence || 0.85,
-      factors,
-      summary: `Identified ${detections.entities.length} sensitive factor(s) with ${highestSeverity} overall severity`,
-      evaluationTimestamp: now,
-    };
+  evaluate(
+    detections: DetectionResult,
+    classification?: ClassificationResult,
+    context?: PipelineContext,
+  ): RiskAssessment {
+    return this.engine.evaluate(detections, classification, context);
   }
 }
 
