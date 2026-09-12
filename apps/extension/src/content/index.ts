@@ -46,6 +46,11 @@ const browserRuntime = createBrowserAdapterRuntime({
 const platformId = detectPlatform(window.location.href);
 const matchedAdapter = adapterRegistry.findAdapterForUrl(window.location.href);
 
+// SAFE initialization diagnostic (zero user text or secrets logged)
+console.debug(`[${EXTENSION_NAME}] content runtime initialized`);
+console.debug(`[${EXTENSION_NAME}] detected platform:`, platformId);
+console.info(`[${EXTENSION_NAME}] content runtime initialized; detected platform: ${platformId}`);
+
 if (matchedAdapter) {
   console.log(`[${EXTENSION_NAME}] Found adapter for current page: ${matchedAdapter.displayName}`);
   if (typeof document !== 'undefined') {

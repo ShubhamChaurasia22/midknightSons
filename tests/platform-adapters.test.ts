@@ -656,7 +656,83 @@ describe('Milestone M2.3 — AI Platform Adapter Integration', () => {
   });
 
   // ==========================================================================
-  // 20. Architectural Isolation: @shield/core Free of DOM/Platform Imports
+  // 20. Normal Typing & Enter Interception Validation
+  // ==========================================================================
+  describe('Normal Typing & Enter Interception', () => {
+    it('does not intercept or block ordinary typing characters like "hello shield"', async () => {
+      for (const p of platforms) {
+        const root = new MockDomRoot();
+        const composer = p.createComposer('');
+        root.setElement(p.selector, composer);
+
+        let intercepted = false;
+        const adapter = p.createAdapter({
+          onIntercept: () => {
+            intercepted = true;
+          },
+        });
+
+        await adapter.attach(root);
+
+        // Simulate typing "hello shield" key by key
+        const phrase = 'hello shield';
+        let accumulatedText = '';
+        for (const char of phrase) {
+          accumulatedText += char;
+          const keyEvent = createMockEvent({
+            key: char,
+            target: composer,
+          });
+
+          root.dispatch('keydown', keyEvent);
+
+          // Crucial: normal typing must NEVER be prevented or intercepted
+          expect(keyEvent.prevented).toBe(false);
+          expect(keyEvent.stopped).toBe(false);
+
+          // Update composer value/text to reflect native input entry
+          if ('value' in composer) {
+            composer.value = accumulatedText;
+          } else {
+            composer.innerText = accumulatedText;
+            composer.textContent = accumulatedText;
+          }
+        }
+
+        // Verify Shield evaluation did not trigger on ordinary typing
+        expect(intercepted).toBe(false);
+
+        // Verify multiline Shift+Enter typing is also NOT intercepted
+        const shiftEnterEvent = createMockEvent({
+          key: 'Enter',
+          shiftKey: true,
+          target: composer,
+        });
+        root.dispatch('keydown', shiftEnterEvent);
+        expect(shiftEnterEvent.prevented).toBe(false);
+        expect(intercepted).toBe(false);
+
+        // Now test submit with Enter (send interception)
+        const enterSubmitEvent = createMockEvent({
+          key: 'Enter',
+          shiftKey: false,
+          target: composer,
+        });
+
+        const result = await adapter.handleTransaction(enterSubmitEvent);
+        expect(result.ok).toBe(true);
+        expect(result.status).toBe('ALLOW');
+        expect(result.action).toBe('ALLOW');
+        // Clean prompt allows submit to proceed
+        expect(enterSubmitEvent.prevented).toBe(false);
+
+        await adapter.detach();
+      }
+    });
+  });
+
+  // ==========================================================================
+  // 21. Architectural Isolation: @shield/core Free of DOM/Platform Imports
   // ==========================================================================
   describe('Architectural Boundary', () => {
     it('20. @shield/core has 0 DOM/browser or platform adapter imports', () => {
