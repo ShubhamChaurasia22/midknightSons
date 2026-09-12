@@ -11,6 +11,7 @@ export * from './risk';
 export * from './policy';
 export * from './transformation';
 export * from './verification';
+export * from './delivery';
 export * from './context';
 export * from './result';
 export * from './orchestrator';
