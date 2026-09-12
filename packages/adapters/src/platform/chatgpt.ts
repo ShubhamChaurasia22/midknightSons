@@ -32,6 +32,9 @@ export class ChatGPTAdapter extends BaseAiPlatformAdapter {
       'textarea[data-id="root"]',
       'div[contenteditable="true"][tabindex="0"]',
       'textarea#prompt-textarea',
+      'textarea#mobile-composer-prompt',
+      'textarea.wm-composer-textarea',
+      'textarea[placeholder*="ChatGPT"]',
     ];
 
     let composerElement = null;
@@ -64,6 +67,7 @@ export class ChatGPTAdapter extends BaseAiPlatformAdapter {
       'button[data-testid="fruitjuice-send-button"]',
       'button[aria-label*="Send"]',
       'button[aria-label="Send prompt"]',
+      'button.wm-composer-submitButton',
     ];
 
     let sendButtonElement = undefined;
