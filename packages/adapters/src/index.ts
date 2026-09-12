@@ -90,3 +90,7 @@ export class InMemoryAdapterRegistry implements PlatformAdapterRegistry {
     return Array.from(this.adapters.values());
   }
 }
+
+export * from './contracts';
+export * from './in-memory';
+export * from './boundary';
