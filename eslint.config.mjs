@@ -9,6 +9,7 @@ export default tseslint.config(
       '**/coverage/**',
       '**/*.tsbuildinfo',
       'pnpm-lock.yaml',
+      '**/.playwright-mcp/**',
     ],
   },
   js.configs.recommended,
